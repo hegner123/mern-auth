@@ -45,10 +45,11 @@ app.use(bodyParser.json());
 const db = require("./config/keys").mongoURI;
 
 // Connect to MongoDB
-mongoose
-  .connect(
-    db,
-    { useNewUrlParser: true }
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://heroku_wgbbwk93:80c2npv1lu9cgq6f99crf8jqip@ds129459.mlab.com:29459/heroku_wgbbwk93' ,
+    { useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useCreateIndex:true }
   )
   .then(() => console.log("MongoDB successfully connected"))
   .catch(err => console.log(err));
@@ -61,6 +62,17 @@ require("./config/passport")(passport);
 
 // Routes
 app.use("/api/users", users);
+
+const path = require("path")
+
+// ... other app.use middleware 
+app.use(express.static(path.join(__dirname, "client", "build")))
+
+// ...
+// Right before your app.listen(), add this:
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+});
 
 const port = process.env.PORT || 5000;
 
